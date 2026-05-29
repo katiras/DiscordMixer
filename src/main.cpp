@@ -406,7 +406,8 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) 
                 GetCursorPos(&pt);
                 HMENU hMenu = CreatePopupMenu();
                 InsertMenuW(hMenu, 0, MF_BYPOSITION | MF_STRING, 1, L"Settings");
-                InsertMenuW(hMenu, 1, MF_BYPOSITION | MF_STRING, 2, L"Exit");
+                InsertMenuW(hMenu, 1, MF_BYPOSITION | MF_STRING, 3, L"Source");
+                InsertMenuW(hMenu, 2, MF_BYPOSITION | MF_STRING, 2, L"Exit");
                 SetForegroundWindow(hwnd);
                 int cmd = TrackPopupMenu(hMenu, TPM_RETURNCMD | TPM_NONOTIFY, pt.x, pt.y, 0, hwnd, NULL);
                 DestroyMenu(hMenu);
@@ -414,6 +415,8 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) 
                 if (cmd == 1) {
                     ShowWindow(AppState::hwndSettings, SW_SHOW);
                     SetForegroundWindow(AppState::hwndSettings);
+                } else if (cmd == 3) {
+                    ShellExecuteW(NULL, L"open", L"https://github.com/katiras/DiscordMixer", NULL, NULL, SW_SHOWNORMAL);
                 } else if (cmd == 2) {
                     PostQuitMessage(0);
                 }

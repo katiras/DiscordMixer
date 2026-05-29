@@ -1,0 +1,29 @@
+name: Build and Sign Release
+on:
+  release:
+    types: [published]
+permissions:
+  contents: write
+  id-token: write
+  attestations: write
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+      - name: Setup MSVC
+        uses: ilammy/msvc-dev-cmd@v1
+      - name: Build DiscordMixer
+        run: |
+          mkdir build
+          rc /fo build/app.res src/app.rc
+          cl /Zi /EHsc /Fo:build/ /Fd:build/ /Fe:build/DiscordMixer.exe src/main.cpp build/app.res Ole32.lib Uuid.lib Wbemuuid.lib OleAut32.lib User32.lib Shell32.lib Comctl32.lib Gdi32.lib
+      - name: Generate GitHub Artifact Attestation
+        uses: actions/attest-build-provenance@v1
+        with:
+          subject-path: 'build/DiscordMixer.exe'
+      - name: Upload Release Asset
+        uses: softprops/action-gh-release@v2
+        with:
+          files: build/DiscordMixer.exe
