@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256">
+  <!-- Background -->
+  <rect width="256" height="256" rx="56" fill="#5865F2" />
+  
+  <g stroke="#E0E3FF" stroke-linecap="round">
+    <!-- Slider 1 (formerly Middle) -->
+    <line x1="100" y1="64" x2="100" y2="192" stroke-width="16" opacity="0.4" />
+    <line x1="100" y1="160" x2="100" y2="192" stroke-width="16" />
+    <!-- Knob 1 -->
+    <rect x="76" y="144" width="48" height="24" rx="10" fill="#E0E3FF" stroke="none" />
+
+    <!-- Slider 2 (formerly Right) -->
+    <line x1="156" y1="64" x2="156" y2="192" stroke-width="16" opacity="0.4" />
+    <line x1="156" y1="88" x2="156" y2="192" stroke-width="16" />
+    <!-- Knob 2 -->
+    <rect x="132" y="72" width="48" height="24" rx="10" fill="#E0E3FF" stroke="none" />
+  </g>
+</svg>
