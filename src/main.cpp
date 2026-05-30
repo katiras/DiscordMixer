@@ -473,6 +473,13 @@ bool InitializeUI(HINSTANCE hInstance, NOTIFYICONDATAW& outNid) {
 // --- Entry Point ---
 
 int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE, PWSTR, int) {
+    // Enforce single instance via a named mutex.
+    HANDLE hMutex = CreateMutexW(NULL, TRUE, L"DiscordMixer_SingleInstance");
+    if (GetLastError() == ERROR_ALREADY_EXISTS) {
+        if (hMutex) CloseHandle(hMutex);
+        return 0;
+    }
+
     INITCOMMONCONTROLSEX icex = { sizeof(INITCOMMONCONTROLSEX), ICC_BAR_CLASSES };
     InitCommonControlsEx(&icex);
 
@@ -508,6 +515,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE, PWSTR, int) {
     if (pSessionManager) pSessionManager->Release();
 
     Shell_NotifyIconW(NIM_DELETE, &nid);
+    CloseHandle(hMutex);
     CoUninitialize();
     return 0;
 }
