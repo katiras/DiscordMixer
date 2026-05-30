@@ -37,6 +37,8 @@ public:
     explicit operator bool() const { return ptr != nullptr; }
 };
 
+constexpr const wchar_t* APP_VERSION = L"v1.2.0";
+
 enum class RoleType { None = 0, App = 1, Voice = 2 };
 
 // --- Application State ---
@@ -406,7 +408,8 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) 
                 HMENU hMenu = CreatePopupMenu();
                 InsertMenuW(hMenu, 0, MF_BYPOSITION | MF_STRING, 1, L"Settings");
                 InsertMenuW(hMenu, 1, MF_BYPOSITION | MF_STRING, 3, L"Source");
-                InsertMenuW(hMenu, 2, MF_BYPOSITION | MF_STRING, 2, L"Exit");
+                InsertMenuW(hMenu, 2, MF_BYPOSITION | MF_STRING | MF_GRAYED, 0, APP_VERSION);
+                InsertMenuW(hMenu, 3, MF_BYPOSITION | MF_STRING, 2, L"Exit");
                 SetForegroundWindow(hwnd);
                 int cmd = TrackPopupMenu(hMenu, TPM_RETURNCMD | TPM_NONOTIFY, pt.x, pt.y, 0, hwnd, NULL);
                 DestroyMenu(hMenu);
