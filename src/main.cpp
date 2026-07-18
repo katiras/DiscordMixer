@@ -1,4 +1,5 @@
 #include "resource.h"
+#include "version.h"
 #include <string>
 #include <cmath>
 #include <windows.h>
@@ -37,7 +38,7 @@ public:
     explicit operator bool() const { return ptr != nullptr; }
 };
 
-constexpr const wchar_t* APP_VERSION = L"v1.2.0";
+constexpr const wchar_t* APP_VERSION = L"v" APP_VER_WSTR;
 
 enum class RoleType { None = 0, App = 1, Voice = 2 };
 
