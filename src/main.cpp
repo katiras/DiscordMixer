@@ -51,6 +51,9 @@ namespace AppState {
     float VoiceVolume = DefaultVoiceVolume / 100.0f;
     HWND hwndSettings = NULL;
 
+    NOTIFYICONDATAW TrayIcon = {};
+    UINT MsgTaskbarCreated = 0;
+
     std::vector<ISimpleAudioVolume*> AppSessions;
     std::vector<ISimpleAudioVolume*> VoiceSessions;
     std::mutex SessionsMutex;
@@ -401,6 +404,11 @@ LRESULT CALLBACK SettingsProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam
 }
 
 LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
+    if (uMsg == AppState::MsgTaskbarCreated && AppState::MsgTaskbarCreated != 0) {
+        Shell_NotifyIconW(NIM_ADD, &AppState::TrayIcon);
+        return 0;
+    }
+
     switch (uMsg) {
         case WM_TRAYICON:
             if (LOWORD(lParam) == WM_LBUTTONUP || LOWORD(lParam) == WM_RBUTTONUP) {
@@ -449,7 +457,9 @@ HWND RegisterAndCreateWindow(HINSTANCE hInst, const wchar_t* className, WNDPROC 
         CW_USEDEFAULT, CW_USEDEFAULT, w, h, NULL, NULL, hInst, NULL);
 }
 
-bool InitializeUI(HINSTANCE hInstance, NOTIFYICONDATAW& outNid) {
+bool InitializeUI(HINSTANCE hInstance) {
+    AppState::MsgTaskbarCreated = RegisterWindowMessageW(L"TaskbarCreated");
+
     AppState::hwndSettings = RegisterAndCreateWindow(
         hInstance, L"DiscordMixerSettingsClass", SettingsProc,
         L"DiscordMixer", WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU, WS_EX_APPWINDOW,
@@ -461,16 +471,17 @@ bool InitializeUI(HINSTANCE hInstance, NOTIFYICONDATAW& outNid) {
 
     if (!hwndTray) return false;
 
-    outNid = {};
-    outNid.cbSize = sizeof(NOTIFYICONDATAW);
-    outNid.hWnd = hwndTray;
-    outNid.uID = 1;
-    outNid.uFlags = NIF_ICON | NIF_MESSAGE | NIF_TIP;
-    outNid.uCallbackMessage = WM_TRAYICON;
-    outNid.hIcon = LoadIconW(hInstance, MAKEINTRESOURCEW(IDI_APPICON));
-    wcscpy_s(outNid.szTip, L"DiscordMixer");
+    NOTIFYICONDATAW& nid = AppState::TrayIcon;
+    nid = {};
+    nid.cbSize = sizeof(NOTIFYICONDATAW);
+    nid.hWnd = hwndTray;
+    nid.uID = 1;
+    nid.uFlags = NIF_ICON | NIF_MESSAGE | NIF_TIP;
+    nid.uCallbackMessage = WM_TRAYICON;
+    nid.hIcon = LoadIconW(hInstance, MAKEINTRESOURCEW(IDI_APPICON));
+    wcscpy_s(nid.szTip, L"DiscordMixer");
 
-    Shell_NotifyIconW(NIM_ADD, &outNid);
+    Shell_NotifyIconW(NIM_ADD, &nid);
     return true;
 }
 
@@ -496,8 +507,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE, PWSTR, int) {
     CoInitializeSecurity(NULL, -1, NULL, NULL, RPC_C_AUTHN_LEVEL_DEFAULT,
         RPC_C_IMP_LEVEL_IMPERSONATE, NULL, EOAC_NONE, NULL);
 
-    NOTIFYICONDATAW nid = {};
-    if (!InitializeUI(hInstance, nid)) {
+    if (!InitializeUI(hInstance)) {
         CoUninitialize();
         return -1;
     }
@@ -518,7 +528,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE, PWSTR, int) {
     if (pSessionNotification) pSessionNotification->Release();
     if (pSessionManager) pSessionManager->Release();
 
-    Shell_NotifyIconW(NIM_DELETE, &nid);
+    Shell_NotifyIconW(NIM_DELETE, &AppState::TrayIcon);
     CloseHandle(hMutex);
     CoUninitialize();
     return 0;
